@@ -68,7 +68,9 @@ const campaignInProgressDropClaimQuery = '[data-test-selector="DropsCampaignInPr
 
 // ========================================== CONFIG SECTION =================================================================
 
-
+function delay(ms) {
+    return new Promise( resolve => setTimeout(resolve, ms) );
+}
 
 async function viewRandomPage(browser, page) {
   var streamer_last_refresh = dayjs().add(streamerListRefresh, streamerListRefreshUnit);
@@ -125,22 +127,26 @@ async function viewRandomPage(browser, page) {
         console.log('✅ Stream loaded!');
         await clickWhenExist(page, cookiePolicyQuery);
         await clickWhenExist(page, matureContentQuery); //Click on accept button
+        await delay(3000)
 
         if (firstRun) {
           console.log('🔧 Setting lowest possible resolution..');
           await clickWhenExist(page, streamPauseQuery);
-
-          await clickWhenExist(page, streamSettingsQuery);
-          await page.waitFor(streamQualitySettingQuery);
-
-          await clickWhenExist(page, streamQualitySettingQuery);
-          await page.waitFor(streamQualityQuery);
-
-          var resolution = await queryOnWebsite(page, streamQualityQuery);
-          resolution = resolution[resolution.length - 1].attribs.id;
-          await page.evaluate((resolution) => {
-            document.getElementById(resolution).click();
-          }, resolution);
+          try {
+            await clickWhenExist(page, streamSettingsQuery, {throw: true});
+            await page.waitFor(streamQualitySettingQuery);
+  
+            await clickWhenExist(page, streamQualitySettingQuery, {throw: true});
+            await page.waitFor(streamQualityQuery);
+  
+            var resolution = await queryOnWebsite(page, streamQualityQuery);
+            resolution = resolution[resolution.length - 1].attribs.id;
+            await page.evaluate((resolution) => {
+              document.getElementById(resolution).click();
+            }, resolution);
+          } catch (e) {
+            console.log('🤬 Error. Couldnt lower resolution: ', e);
+          }
 
           await clickWhenExist(page, streamPauseQuery);
 
@@ -352,7 +358,7 @@ function getRandomInt(min, max) {
 
 
 
-async function clickWhenExist(page, query) {
+async function clickWhenExist(page, query, opt) {
   let result = await queryOnWebsite(page, query);
 
   try {
@@ -363,6 +369,7 @@ async function clickWhenExist(page, query) {
     }
   } catch (e) { 
     console.log(`Failed to click on query: ${query}, ${e.message}`)
+    if (opt.throw) throw e
   }
 }
 
