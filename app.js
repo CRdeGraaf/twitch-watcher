@@ -358,7 +358,7 @@ function getRandomInt(min, max) {
 
 
 
-async function clickWhenExist(page, query, opt) {
+async function clickWhenExist(page, query, opt = { throw: false}) {
   let result = await queryOnWebsite(page, query);
 
   try {
