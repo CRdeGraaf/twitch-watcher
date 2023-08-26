@@ -26,4 +26,4 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: frosty5689/twitch-watcher:latest
+          tags: corutix/twitch-watcher:latest
