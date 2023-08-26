@@ -130,26 +130,6 @@ async function viewRandomPage(browser, page) {
         await delay(3000)
 
         if (firstRun) {
-          console.log('🔧 Setting lowest possible resolution..');
-          await clickWhenExist(page, streamPauseQuery);
-          try {
-            await clickWhenExist(page, streamSettingsQuery, {throw: true});
-            await page.waitFor(streamQualitySettingQuery);
-  
-            await clickWhenExist(page, streamQualitySettingQuery, {throw: true});
-            await page.waitFor(streamQualityQuery);
-  
-            var resolution = await queryOnWebsite(page, streamQualityQuery);
-            resolution = resolution[resolution.length - 1].attribs.id;
-            await page.evaluate((resolution) => {
-              document.getElementById(resolution).click();
-            }, resolution);
-          } catch (e) {
-            console.log('🤬 Error. Couldnt lower resolution: ', e);
-          }
-
-          await clickWhenExist(page, streamPauseQuery);
-
           await page.keyboard.press('m'); //For unmute
           firstRun = false;
         }
